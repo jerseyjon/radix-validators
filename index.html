@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radix Validators — jerseyjon</title>
+<meta name="description" content="Radix network validators operated by jerseyjon: Radix Charts V2 and DoItForDan.">
+<style>
+  :root {
+    --ground: #141b2d;
+    --panel:  #1c2439;
+    --line:   #2b3552;
+    --ink:    #e8ecf4;
+    --soft:   #9aa6c0;
+    --teal:   #34d39e;
+    --mint:   #8ff0c0;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding-inline: 20px; padding-block: 0;
+    background: var(--ground); color: var(--ink);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding-block: 56px 72px; }
+  h1 {
+    font-size: clamp(26px, 5vw, 36px); line-height: 1.15; margin: 0 0 10px;
+    letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .lede { color: var(--soft); font-size: 17px; max-width: 58ch; margin: 0 0 8px; }
+  .status {
+    display: inline-block; margin-top: 18px; padding: 7px 14px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--panel); color: var(--soft); font-size: 14px;
+  }
+  .status b { color: var(--mint); font-weight: 600; }
+
+  .cards { display: grid; gap: 16px; margin-top: 40px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 22px;
+    display: grid; gap: 14px;
+  }
+  .head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .head img {
+    width: 48px; height: 48px; border-radius: 10px; display: block;
+    max-width: 100%;
+  }
+  .head h2 { font-size: 19px; margin: 0; letter-spacing: -0.01em; }
+  .card p { margin: 0; color: var(--soft); font-size: 15px; max-width: 56ch; }
+  .addr {
+    font-family: var(--mono); font-size: 12px; color: var(--ink);
+    background: var(--ground); border: 1px solid var(--line);
+    padding: 10px 12px; border-radius: 8px;
+    overflow-wrap: anywhere;
+  }
+  .addr span { color: var(--soft); display: block; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+  .links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .links a {
+    font-size: 13px; text-decoration: none;
+    color: var(--ground); background: var(--teal);
+    padding: 7px 13px; border-radius: 7px; font-weight: 600;
+  }
+  .links a.ghost { background: transparent; color: var(--teal); border: 1px solid var(--line); }
+  .links a:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+  .note {
+    margin-top: 40px; background: var(--panel);
+    border: 1px solid var(--line); border-left: 3px solid var(--teal);
+    border-radius: 12px; padding: 22px;
+  }
+  .note h2 { font-size: 17px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .note p { color: var(--soft); font-size: 15px; margin: 0 0 10px; max-width: 58ch; }
+  .note p:last-child { margin-bottom: 0; }
+  .note strong { color: var(--mint); }
+
+  footer {
+    margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+    color: var(--soft); font-size: 13px;
+  }
+  footer a { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Radix Validators</h1>
+  <p class="lede">Two validators on the Radix public network, run on independent
+  infrastructure across three locations.</p>
+
+  <!-- EDIT THIS LINE as circumstances change. It is the one thing on the page
+       a delegator will look for. -->
+  <p class="status">Status: <b>operating normally</b></p>
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="head">
+        <img src="radix-charts-v2.png" alt="Radix Charts V2 icon" width="48" height="48">
+        <h2>Radix Charts V2</h2>
+      </div>
+      <p>A long-running validator in the Radix active set.</p>
+      <div class="addr"><span>Validator address</span>validator_rdx1svxx0jetjwnptndj60sm8h7ljs0v88fl6xhwcyp6ar397agwd0ezaz</div>
+      <div class="links">
+        <a href="https://dashboard.radixdlt.com/network-staking/validator_rdx1svxx0jetjwnptndj60sm8h7ljs0v88fl6xhwcyp6ar397agwd0ezaz">Radix Dashboard</a>
+        <a class="ghost" href="https://validators.stakesafe.net/">StakeSafe list</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head">
+        <img src="difd.png" alt="DoItForDan icon" width="48" height="48">
+        <h2>DoItForDan</h2>
+      </div>
+      <p>A validator in the Radix active set, run in memory of Dan Hughes.</p>
+      <div class="addr"><span>Validator address</span>validator_rdx1swtu7kg5p75g2j2r9x87kvcmjlhx48vw60w8l0qu84qdcfkyzhsdlw</div>
+      <div class="links">
+        <a href="https://dashboard.radixdlt.com/network-staking/validator_rdx1swtu7kg5p75g2j2r9x87kvcmjlhx48vw60w8l0qu84qdcfkyzhsdlw">Radix Dashboard</a>
+        <a class="ghost" href="https://validators.stakesafe.net/">StakeSafe list</a>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="note">
+    <h2>About the 15% validator fee</h2>
+    <p>Both validators charge <strong>15%</strong>. That is an increase, and it is
+    worth being straight about why: hosting costs rose sharply during 2026 — one
+    provider raised cloud instance prices by up to 3.1&times; in June alone — while
+    the XRD price fell, so the same emissions cover much less of the running cost.
+    Most of the validator set has moved into the 10&ndash;20% range for the same
+    reason.</p>
+    <p>Radix delays any fee <em>increase</em> by 4,032 epochs, roughly two weeks,
+    so you always have notice and time to move your stake. A fee
+    <em>decrease</em> applies at the next epoch.</p>
+  </section>
+
+  <footer>
+    <p>Stake and uptime figures are deliberately not repeated here — read them
+    from the <a href="https://dashboard.radixdlt.com/network-staking">Radix Dashboard</a>,
+    which is authoritative for live values. Assets in
+    <a href="https://github.com/jerseyjon/radix-validators">github.com/jerseyjon/radix-validators</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>
