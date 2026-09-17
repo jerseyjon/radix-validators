@@ -76,6 +76,33 @@
     .facts dt { border-top: 1px solid var(--line); }
   }
 
+  .tech { margin-top: 36px; }
+  .tech h2 { font-size: 20px; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .tech p { color: var(--soft); font-size: 15px; margin: 0 0 14px; max-width: 62ch; }
+  .tech code {
+    font-family: var(--mono); font-size: 12.5px; color: var(--mint);
+    background: var(--panel); border: 1px solid var(--line);
+    padding: 1px 5px; border-radius: 4px;
+  }
+  .tech h3 {
+    font-size: 13px; color: var(--soft); text-transform: uppercase;
+    letter-spacing: 0.09em; margin: 26px 0 10px; font-weight: 600;
+  }
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  table.cmp th, table.cmp td {
+    text-align: left; padding: 11px 14px; border-top: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.cmp thead th {
+    border-top: 0; background: var(--panel); color: var(--soft);
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  table.cmp td:first-child, table.cmp th:first-child { white-space: normal; }
+  table.cmp td.num { font-variant-numeric: tabular-nums; }
+  table.cmp td.good { color: var(--mint); font-weight: 600; }
+  table.cmp tbody tr.total td { background: var(--panel); font-weight: 600; }
+
   .note {
     margin-top: 36px; background: var(--panel);
     border: 1px solid var(--line); border-left: 3px solid var(--teal);
@@ -132,6 +159,128 @@
         validators.</dd>
     </dl>
   </div>
+
+  <section class="tech">
+    <h2>How this node is configured</h2>
+
+    <p>DIFD4 exists partly to test whether a full Radix validator can be run on
+    much less disk and memory than is usual, without giving anything up. It runs
+    a build of the standard node with a small patch that exposes some of
+    RocksDB&rsquo;s own settings as environment variables. The figures below are
+    measured on this node, not estimated.</p>
+
+    <p><strong>The patch changes settings only.</strong> It adds no new storage
+    format and needs no resync, reformat or fresh snapshot: RocksDB records the
+    block size and compression <em>per file</em>, so existing files stay readable
+    and are converted as they are rewritten by normal compaction. That matters
+    because it means an existing node can try this and roll back.</p>
+
+    <h3>What changed</h3>
+    <div class="scroll">
+      <table class="cmp">
+        <thead>
+          <tr><th>Setting</th><th>Standard node</th><th>DIFD4</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Compression</td>
+            <td>Snappy, and none at the bottom level</td>
+            <td class="good">zstd on all levels, 26 of 27 column families</td>
+          </tr>
+          <tr>
+            <td>Block size</td>
+            <td>4&nbsp;KiB everywhere</td>
+            <td class="good">64&nbsp;KiB on the 11 archival families, 4&nbsp;KiB on the rest</td>
+          </tr>
+          <tr>
+            <td>Write-ahead log</td>
+            <td>in the ledger directory, size <em>unlimited</em></td>
+            <td class="good">separate directory, capped at 1&nbsp;GiB</td>
+          </tr>
+          <tr>
+            <td>Block cache / open files</td>
+            <td>defaults (<code>max_open_files=-1</code>)</td>
+            <td>2&nbsp;GiB cache, <code>max_open_files=20000</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:14px">The single biggest lever turned out to be
+    <strong>block size, not the compression algorithm</strong>. At 4&nbsp;KiB a
+    compressor has very little context to work with; at 64&nbsp;KiB it has
+    sixteen times as much. That is also why filesystem-level compression looks so
+    effective on a standard node &mdash; it gets to work on 128&nbsp;KiB extents
+    rather than 4&nbsp;KiB blocks.</p>
+
+    <p>Capping the write-ahead log matters more than it sounds. The default is
+    <em>no limit</em>, and RocksDB then keeps log files back to the oldest
+    unflushed memtable &mdash; so one rarely-written column family can pin
+    everything newer. On the standard nodes measured here that had grown to
+    22&nbsp;GB and 29&nbsp;GB. Moving the log to its own directory also keeps it
+    off the same spindle as the data.</p>
+
+    <h3>Result, measured 17 September 2026</h3>
+    <div class="scroll">
+      <table class="cmp">
+        <thead>
+          <tr><th>&nbsp;</th><th>Standard node</th><th>DIFD4</th><th>Change</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ledger (SST files)</td>
+            <td class="num">400.2 GB</td>
+            <td class="num good">266.8 GB</td>
+            <td class="num">&minus;33%</td>
+          </tr>
+          <tr>
+            <td>Write-ahead log</td>
+            <td class="num">22.2 GB</td>
+            <td class="num good">0.7 GB</td>
+            <td class="num">&minus;97%</td>
+          </tr>
+          <tr class="total">
+            <td>Total on disk</td>
+            <td class="num">422.4 GB</td>
+            <td class="num good">267.5 GB</td>
+            <td class="num">&minus;37%</td>
+          </tr>
+          <tr>
+            <td>Memory in use (resident)</td>
+            <td class="num">11.7&ndash;14.7 GB</td>
+            <td class="num good">9.7 GB</td>
+            <td class="num">&mdash;</td>
+          </tr>
+          <tr>
+            <td>Missed proposals</td>
+            <td class="num">0</td>
+            <td class="num good">0</td>
+            <td class="num">&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:14px">Both nodes hold the same chain at the same height,
+    with transaction indexes disabled on each, so the comparison is like for
+    like, and both memory figures are resident set size. DIFD4 runs on a
+    16&nbsp;GB machine with a 12&nbsp;GB cap; 8.7&nbsp;GB of its total is the
+    process itself and the remainder is filesystem cache, which the kernel
+    reclaims on demand. No restarts and no out-of-memory events.</p>
+
+    <p><strong>Caveats, because this is a work in progress.</strong> DIFD4 has
+    only been in the active validator set since 17 September 2026, so the
+    evidence on long-run behaviour under load is still thin. The ledger figure is
+    also still falling as older files are rewritten, so 266.8&nbsp;GB is an upper
+    bound rather than a settled number. And an earlier version of the patch that
+    set <em>only</em> bottom-level compression saved barely 1% &mdash; nearly all
+    of the gain here comes from doing all levels together with the larger block
+    size. Anyone reproducing this should measure their own node rather than trust
+    these numbers.</p>
+
+    <p>If you run a Radix node and want the details, the contact route is the
+    validator list linked above.</p>
+  </section>
 
   <section class="note">
     <h2>Why another validator</h2>
